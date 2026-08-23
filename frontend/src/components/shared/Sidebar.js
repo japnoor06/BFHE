@@ -7,6 +7,7 @@ import { logout } from '../../store/slices/authSlice';
 const NAV = [
   { path: '/expenses', icon: '+', label: 'Add Expense' },
   { path: '/dashboard', icon: '⬡', label: 'Dashboard' },
+  { path: '/taxation', icon: '🏛️', label: 'Tax & Take-Home' },
   { path: '/net-worth', icon: '◈', label: 'Net Worth' },
   { path: '/goals', icon: '◎', label: 'Goals' },
   { path: '/budget', icon: '◧', label: 'Budget Planner' },

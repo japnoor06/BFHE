@@ -16,6 +16,7 @@ import InflationPage from './pages/InflationPage';
 import AlertsPage from './pages/AlertsPage';
 import RecommendationsPage from './pages/RecommendationsPage';
 import ExpensePage from './pages/ExpensePage';
+import TaxationPage from './pages/TaxationPage';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useSelector((s) => s.auth);
@@ -74,6 +75,7 @@ export default function App() {
         <Route path="/inflation" element={<ProtectedRoute><AppShell><InflationPage /></AppShell></ProtectedRoute>} />
         <Route path="/alerts" element={<ProtectedRoute><AppShell><AlertsPage /></AppShell></ProtectedRoute>} />
         <Route path="/expenses" element={<ProtectedRoute><AppShell><ExpensePage /></AppShell></ProtectedRoute>} />
+        <Route path="/taxation" element={<ProtectedRoute><AppShell><TaxationPage /></AppShell></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

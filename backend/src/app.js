@@ -40,6 +40,7 @@ app.use('/api/v1/simulation', require('./routes/simulation'));
 app.use('/api/v1/alerts', require('./routes/alerts'));
 app.use('/api/v1/inflation', require('./routes/inflation'));
 app.use('/api/v1/ai', require('./routes/ai'));
+app.use('/api/v1/tax', require('./routes/tax'));
 
 app.use('*', (req, res) => res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` }));
 app.use(errorHandler);
