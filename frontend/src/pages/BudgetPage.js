@@ -203,7 +203,7 @@ export default function BudgetPage() {
   const actualSavings = income - actualNeeds - actualWants;
 
   const budgetData = [
-    { name: 'Needs (50%)', budget: needs, actual: actualNeeds, color: '#F0B429' },
+    { name: 'Needs (50%)', budget: needs, actual: actualNeeds, color: '#c9d9f5' },
     { name: 'Wants (30%)', budget: wants, actual: actualWants, color: '#4F8EF7' },
     { name: 'Savings (20%)', budget: savings, actual: Math.max(0, actualSavings), color: '#31C48D' },
   ];

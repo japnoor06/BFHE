@@ -12,7 +12,7 @@ import { StatCard, SectionCard, ProgressBar, EmptyState } from '../components/ui
 import { formatINR, getScoreColor } from '../utils/currency';
 import RecommendationPanel from '../components/dashboard/RecommendationPanel';
 
-const COLORS = ['#D4AF37', '#0DCFAA', '#b8860b', '#23D160', '#F5D76E', '#4F8EF7', '#FF4A4A', '#9061F9'];
+const COLORS = ['#c9d9f5', '#87d8d0', '#91a9d0', '#23D160', '#e4ebf8', '#a9c8ff', '#FF4A4A', '#b9a9f7'];
 
 export default function DashboardPage() {
   const dispatch = useDispatch();

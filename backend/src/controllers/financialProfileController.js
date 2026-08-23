@@ -198,3 +198,26 @@ exports.updateProfile = async (req, res, next) => {
 
   } catch (error) { next(error); }
 };
+
+// Reuses the existing profile scoring pipeline after changing one expense field.
+exports.addExpense = async (req, res, next) => {
+  try {
+    const { category, amount } = req.body;
+    const expenseFields = ['houseRent', 'groceries', 'electricityBill', 'gasBill', 'waterBill', 'internetMobile', 'medicalExpenses', 'vehicleFuel', 'schoolFees', 'otherExpenses'];
+
+    if (!expenseFields.includes(category) || !Number.isFinite(amount) || amount <= 0) {
+      return res.status(400).json({ success: false, message: 'Please provide a valid expense category and amount.' });
+    }
+
+    const existing = await prisma.financialProfile.findUnique({ where: { userId: req.user.id } });
+    if (!existing) return res.status(404).json({ success: false, message: 'Profile not found. Please complete onboarding first.' });
+
+    const profile = await prisma.financialProfile.update({
+      where: { userId: req.user.id },
+      data: { [category]: existing[category] + amount },
+      include: { creditCards: true }
+    });
+    const score = await triggerScoreRecalculation(req.user.id, profile);
+    res.status(200).json({ success: true, message: 'Expense added and financial health score recalculated!', data: { profile, score } });
+  } catch (error) { next(error); }
+};

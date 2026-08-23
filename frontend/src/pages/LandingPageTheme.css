@@ -1,0 +1,22 @@
+.landing-page { background: #000 !important; color: #f7f8fc; font-family: Inter, system-ui, sans-serif !important; }
+.landing-page .landing-nav { background: rgba(4,4,6,.68) !important; border-bottom: 1px solid rgba(255,255,255,.12) !important; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+.landing-page .landing-nav > div:first-child > div:first-child, .landing-page .landing-footer > div > div:first-child > div:first-child { background: linear-gradient(180deg,#fff,#c9d9f5) !important; color: #111318 !important; box-shadow: inset 0 1px 0 #fff, 0 0 18px rgba(186,208,255,.2); }
+.landing-page .landing-nav a { color: rgba(255,255,255,.68) !important; font-family: Inter,system-ui,sans-serif !important; letter-spacing: -.01em !important; text-transform: none !important; }
+.landing-page .landing-nav .btn { border-radius: 7px; letter-spacing: -.01em; text-transform: none; }
+.landing-page .landing-hero { isolation: isolate; background: #000; }
+.landing-page .landing-hero-video { position: absolute; inset: 0; z-index: -2; overflow: hidden; }
+.landing-page .landing-hero-video::after { content: none; }
+.landing-page .landing-hero-video video { width: 100%; height: 100%; object-fit: cover; }
+.landing-page .landing-hero h1, .landing-page .landing-section h2, .landing-page .landing-final-cta h2 { font-family: Inter,system-ui,sans-serif !important; letter-spacing: -.05em !important; }
+.landing-page .landing-hero h1 span { color: #c9d9f5 !important; }
+.landing-page .landing-hero h1 span:last-child { font-family: 'Instrument Serif', Georgia, serif !important; font-style: italic; font-weight: 400 !important; color: #aab4c6 !important; }
+.landing-page .landing-hero .btn-primary, .landing-page .landing-final-cta button, .landing-page .landing-footer button { background: linear-gradient(180deg,#fff,#e8eef9 48%,#cad8ee) !important; color: #111318 !important; border: 1px solid #fff !important; box-shadow: inset 0 1px 0 #fff, 0 0 22px rgba(186,208,255,.25) !important; }
+.landing-page .landing-hero .btn-primary:hover, .landing-page .landing-final-cta button:hover { box-shadow: inset 0 1px 0 #fff, 0 0 28px rgba(186,208,255,.42) !important; }
+.landing-page .landing-marquee, .landing-page .landing-stats, .landing-page .landing-testimonials { background: linear-gradient(135deg, rgba(255,255,255,.045), rgba(255,255,255,.015)) !important; border-color: rgba(255,255,255,.12) !important; }
+.landing-page .landing-section, .landing-page .landing-testimonials { position: relative; }
+.landing-page .landing-section::before, .landing-page .landing-testimonials::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 20% 20%, rgba(177,204,246,.06), transparent 36%); }
+.landing-page .landing-section > *, .landing-page .landing-testimonials > * { position: relative; }
+.landing-page .landing-final-cta { background: radial-gradient(ellipse at center, rgba(177,204,246,.12), transparent 58%) !important; border-top: 1px solid rgba(255,255,255,.1); }
+.landing-page .landing-footer { background: #050507 !important; border-top-color: rgba(255,255,255,.12) !important; }
+.landing-page .landing-footer input { background: rgba(255,255,255,.04) !important; border-color: rgba(255,255,255,.16) !important; }
+@media (max-width: 640px) { .landing-page .landing-section { padding: 72px 20px !important; } .landing-page .landing-testimonials, .landing-page .landing-final-cta, .landing-page .landing-footer { padding-left: 20px !important; padding-right: 20px !important; } }

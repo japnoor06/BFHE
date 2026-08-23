@@ -8,117 +8,37 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const { loading, error } = useSelector((s) => s.auth);
   const [form, setForm] = useState({ name: '', email: '', password: '', role: 'salaried', phone: '' });
-
   useEffect(() => { dispatch(clearError()); }, [dispatch]);
-
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const result = await dispatch(registerUser(form));
     if (registerUser.fulfilled.match(result)) navigate('/onboarding');
   };
+  const roles = [
+    { value: 'salaried', icon: '💼', label: 'Salaried', desc: 'Fixed monthly salary' },
+    { value: 'business', icon: '🏪', label: 'Business Owner', desc: 'MSME / Self-employed' }
+  ];
 
   return (
-    <div style={styles.page}>
-      <div style={styles.bgOrb1} /><div style={styles.bgOrb2} />
-
-      <div style={styles.container} className="animate-fade-up">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28, justifyContent: 'center' }}>
-          <div style={{ width: 44, height: 44, borderRadius: 10, background: 'linear-gradient(135deg,#F0B429,#d4960f)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 20, color: '#050810' }}>₹</div>
-          <div>
-            <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 20, fontWeight: 900, letterSpacing: 2, color: 'var(--text)' }}>BFHE</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: 0.5, textTransform: 'uppercase' }}>BHARAT FINANCIAL HEALTH ENGINE</div>
-          </div>
-        </div>
-
-        <div style={styles.card}>
-          <h2 style={styles.heading}>Create your account</h2>
-          <p style={styles.subheading}>Start your financial health journey today</p>
-
-          {error && <div className="alert alert-error" style={{ marginBottom: 20 }}>{error}</div>}
-
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <div className="form-group">
-              <label className="form-label">Full Name</label>
-              <input className="form-input" type="text" name="name" value={form.name}
-                onChange={handleChange} placeholder="Arjun Sharma" required />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Email Address</label>
-              <input className="form-input" type="email" name="email" value={form.email}
-                onChange={handleChange} placeholder="arjun@example.com" required />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Phone (Optional)</label>
-              <input className="form-input" type="tel" name="phone" value={form.phone}
-                onChange={handleChange} placeholder="9876543210" maxLength={10} />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Password</label>
-              <input className="form-input" type="password" name="password" value={form.password}
-                onChange={handleChange} placeholder="Min 6 characters" required minLength={6} />
-            </div>
-
-            {/* Role Selection */}
-            <div className="form-group">
-              <label className="form-label">I am a</label>
-              <div style={styles.roleGrid}>
-                {[
-                  { value: 'salaried', label: '💼 Salaried', desc: 'Fixed monthly salary' },
-                  { value: 'business', label: '🏪 Business Owner', desc: 'MSME / Self-employed' }
-                ].map(r => (
-                  <div key={r.value}
-                    onClick={() => setForm({ ...form, role: r.value })}
-                    style={{
-                      ...styles.roleCard,
-                      ...(form.role === r.value ? styles.roleCardActive : {})
-                    }}>
-                    <div style={styles.roleLabel}>{r.label}</div>
-                    <div style={styles.roleDesc}>{r.desc}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <button type="submit" className="btn btn-primary w-full" disabled={loading} style={{ marginTop: 4 }}>
-              {loading ? <><span className="spinner" />Creating account...</> : 'Create Account →'}
-            </button>
-          </form>
-
-          <p style={styles.switchText}>
-            Already have an account?{' '}
-            <Link to="/login" style={styles.link}>Sign in</Link>
-          </p>
-        </div>
-      </div>
-    </div>
+    <main className="auth-page">
+      <div className="auth-ambient" aria-hidden="true" /><div className="auth-grain" aria-hidden="true" />
+      <header className="auth-brand"><div className="logo-mark" aria-hidden="true">₹</div><div><div className="auth-wordmark">BFHE</div><div className="auth-subtitle">Bharat Financial Health Engine</div></div></header>
+      <section className="auth-card" aria-labelledby="sign-up-title">
+        <h1 id="sign-up-title">Create your account</h1><p className="auth-card-subheading">Start your financial health journey today</p>
+        {error && <div className="auth-error" role="alert">{error}</div>}
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="auth-field"><label htmlFor="register-name">Full Name</label><input id="register-name" type="text" name="name" value={form.name} onChange={handleChange} placeholder="Arjun Sharma" required /></div>
+          <div className="auth-field"><label htmlFor="register-email">Email Address</label><input id="register-email" type="email" name="email" value={form.email} onChange={handleChange} placeholder="arjun@example.com" required /></div>
+          <div className="auth-field"><label htmlFor="register-phone">Phone (Optional)</label><input id="register-phone" type="tel" name="phone" value={form.phone} onChange={handleChange} placeholder="9876543210" maxLength={10} /></div>
+          <div className="auth-field"><label htmlFor="register-password">Password</label><input id="register-password" type="password" name="password" value={form.password} onChange={handleChange} placeholder="Min 6 characters" required minLength={6} /></div>
+          <div className="auth-field"><span className="auth-role-label">I am a</span><div className="role-grid">{roles.map((role) => <button key={role.value} type="button" className={`role-card${form.role === role.value ? ' is-selected' : ''}`} onClick={() => setForm({ ...form, role: role.value })}><span className="role-icon">{role.icon}</span><span className="role-title">{role.label}</span><span className="role-description">{role.desc}</span></button>)}</div></div>
+          <button type="submit" className="auth-submit" disabled={loading}>{loading ? <><span className="spinner" />Creating account...</> : 'Create Account'}</button>
+        </form>
+      </section>
+      <p className="auth-footer">Already have an account? <Link to="/login">Sign in</Link></p>
+    </main>
   );
-};
-
-const styles = {
-  page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', position: 'relative', overflow: 'hidden', background: 'var(--bg-deep)' },
-  bgOrb1: { position: 'fixed', top: '-10%', right: '-5%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,166,35,0.06) 0%, transparent 70%)', pointerEvents: 'none' },
-  bgOrb2: { position: 'fixed', bottom: '-10%', left: '-5%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,201,167,0.04) 0%, transparent 70%)', pointerEvents: 'none' },
-  container: { width: '100%', maxWidth: 480, position: 'relative', zIndex: 1 },
-  logo: {},
-  logoIcon: {},
-  logoTitle: {},
-  logoSub: {},
-  card: { background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 20, padding: '32px 28px' },
-  heading: { fontSize: 24, fontWeight: 800, marginBottom: 6, color: 'var(--text-primary)' },
-  subheading: { fontSize: 14, color: 'var(--text-secondary)', marginBottom: 24 },
-  form: { display: 'flex', flexDirection: 'column', gap: 16 },
-  roleGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 },
-  roleCard: { padding: '14px 12px', border: '2px solid var(--border)', borderRadius: 10, cursor: 'pointer', transition: 'all 0.2s', background: 'var(--bg-elevated)' },
-  roleCardActive: { borderColor: 'var(--accent-gold)', background: 'rgba(245,166,35,0.08)' },
-  roleLabel: { fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 3 },
-  roleDesc: { fontSize: 11, color: 'var(--text-secondary)' },
-  switchText: { textAlign: 'center', marginTop: 20, fontSize: 14, color: 'var(--text-secondary)' },
-  link: { color: 'var(--accent-gold)', textDecoration: 'none', fontWeight: 600 }
 };
 
 export default RegisterPage;

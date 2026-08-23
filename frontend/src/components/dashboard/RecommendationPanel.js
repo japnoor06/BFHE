@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 const catIcons = { savings: '💰', debt: '🏦', emergency: '🛡️', credit: '💳', investment: '📈', expense: '✂️', tax: '🏛️', insurance: '🔒', goal: '🎯' };
 const priMap = {
   critical: { bg: 'rgba(239,68,68,0.12)', color: '#EF4444', border: 'rgba(239,68,68,0.25)' },
-  high:     { bg: 'rgba(240,180,41,0.12)', color: '#F0B429', border: 'rgba(240,180,41,0.25)' },
+  high:     { bg: 'rgba(201,217,245,0.12)', color: '#c9d9f5', border: 'rgba(201,217,245,0.25)' },
   medium:   { bg: 'rgba(79,142,247,0.12)', color: '#4F8EF7', border: 'rgba(79,142,247,0.25)' },
   low:      { bg: 'rgba(49,196,141,0.12)', color: '#31C48D', border: 'rgba(49,196,141,0.25)' },
 };
@@ -22,7 +22,7 @@ const RecommendationPanel = ({ aiRecommendations = [], recommendations = [], aiL
       className="card" style={{ position: 'relative', overflow: 'hidden' }}>
 
       {/* Gradient top accent */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: isAI ? 'linear-gradient(90deg, #9061F9, #4F8EF7, #0DCFAA)' : 'linear-gradient(90deg, var(--gold), #d4960f)' }} />
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: isAI ? 'linear-gradient(90deg, #b9a9f7, #a9c8ff, #87d8d0)' : 'linear-gradient(90deg, #ffffff, #c9d9f5)' }} />
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -38,7 +38,7 @@ const RecommendationPanel = ({ aiRecommendations = [], recommendations = [], aiL
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {totalImpact > 0 && (
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gold)', background: 'rgba(240,180,41,0.1)', borderRadius: 6, padding: '3px 8px' }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gold)', background: 'rgba(201,217,245,0.1)', borderRadius: 6, padding: '3px 8px' }}>
               +{totalImpact} pts
             </span>
           )}
@@ -101,8 +101,8 @@ const RecommendationPanel = ({ aiRecommendations = [], recommendations = [], aiL
       {!aiLoading && recs.length > 3 && (
         <button onClick={() => navigate('/recommendations')}
           style={{ marginTop: 12, width: '100%', padding: '9px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-body)',
-            background: isAI ? 'rgba(144,97,249,0.1)' : 'rgba(240,180,41,0.1)',
-            border: `1px solid ${isAI ? 'rgba(144,97,249,0.2)' : 'rgba(240,180,41,0.2)'}`,
+            background: isAI ? 'rgba(185,169,247,0.1)' : 'rgba(201,217,245,0.1)',
+            border: `1px solid ${isAI ? 'rgba(185,169,247,0.2)' : 'rgba(201,217,245,0.2)'}`,
             color: isAI ? '#9061F9' : 'var(--gold)', transition: 'all 0.2s' }}>
           ✨ View All {recs.length} Recommendations →
         </button>

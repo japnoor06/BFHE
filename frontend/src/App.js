@@ -15,6 +15,7 @@ import SimulationPage from './pages/SimulationPage';
 import InflationPage from './pages/InflationPage';
 import AlertsPage from './pages/AlertsPage';
 import RecommendationsPage from './pages/RecommendationsPage';
+import ExpensePage from './pages/ExpensePage';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useSelector((s) => s.auth);
@@ -31,7 +32,7 @@ function AppShell({ children }) {
       {/* Mobile Header */}
       <div className="mobile-header">
         <div className="mobile-header-logo">
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, var(--gold), #d4960f)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(180deg, #ffffff, #c9d9f5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ fontSize: 16, fontWeight: 900, color: '#050810' }}>₹</span>
           </div>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 900, letterSpacing: 1 }}>BFHE</span>
@@ -72,6 +73,7 @@ export default function App() {
         <Route path="/simulation" element={<ProtectedRoute><AppShell><SimulationPage /></AppShell></ProtectedRoute>} />
         <Route path="/inflation" element={<ProtectedRoute><AppShell><InflationPage /></AppShell></ProtectedRoute>} />
         <Route path="/alerts" element={<ProtectedRoute><AppShell><AlertsPage /></AppShell></ProtectedRoute>} />
+        <Route path="/expenses" element={<ProtectedRoute><AppShell><ExpensePage /></AppShell></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

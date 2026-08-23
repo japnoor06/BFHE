@@ -17,19 +17,19 @@ export const formatINRCompact = (amount) => {
 };
 
 export const getScoreColor = (grade) => {
-  const colors = { Excellent:'#31C48D', Good:'#4F8EF7', Fair:'#F0B429', Poor:'#FF8A4C', Critical:'#F05252' };
+  const colors = { Excellent:'#31C48D', Good:'#a9c8ff', Fair:'#c9d9f5', Poor:'#FF8A4C', Critical:'#F05252' };
   return colors[grade] || '#8896B3';
 };
 
 export const getScoreBgColor = (grade) => {
-  const colors = { Excellent:'rgba(49,196,141,0.12)', Good:'rgba(79,142,247,0.12)', Fair:'rgba(240,180,41,0.12)', Poor:'rgba(255,138,76,0.12)', Critical:'rgba(240,82,82,0.12)' };
+  const colors = { Excellent:'rgba(49,196,141,0.12)', Good:'rgba(169,200,255,0.12)', Fair:'rgba(201,217,245,0.12)', Poor:'rgba(255,138,76,0.12)', Critical:'rgba(240,82,82,0.12)' };
   return colors[grade] || 'rgba(138,155,190,0.12)';
 };
 
 export const getPriorityStyle = (priority) => {
   const styles = {
     high:   { bg:'rgba(240,82,82,0.12)', color:'#FCA5A5', border:'rgba(240,82,82,0.3)' },
-    medium: { bg:'rgba(240,180,41,0.12)', color:'#FDE68A', border:'rgba(240,180,41,0.3)' },
+    medium: { bg:'rgba(201,217,245,0.12)', color:'#c9d9f5', border:'rgba(201,217,245,0.3)' },
     low:    { bg:'rgba(49,196,141,0.12)', color:'#6EE7B7', border:'rgba(49,196,141,0.3)' }
   };
   return styles[priority] || styles.medium;

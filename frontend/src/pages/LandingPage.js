@@ -1,691 +1,99 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useScroll } from 'framer-motion';
+import './LandingPageTheme.css';
 
-// ── Animated counter hook ─────────────────────────────────────────────────────
-function useCounter(target, duration = 2000, start = false) {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!start) return;
-    let startTime = null;
-    const step = (timestamp) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(eased * target));
-      if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [target, duration, start]);
-  return count;
-}
+const features = [
+  { icon: '01', title: 'Financial Health Score', description: 'See one clear score built from income, debt, savings, credit usage, and spending habits.', accent: '#c9d9f5' },
+  { icon: '02', title: 'Net Worth Tracker', description: 'Track assets and liabilities in one place, with an easy-to-read allocation breakdown.', accent: '#87d8d0' },
+  { icon: '03', title: 'Goal Planning', description: 'Turn your financial goals into a practical monthly plan and track your progress.', accent: '#a9c8ff' },
+  { icon: '04', title: 'Smart Budgeting', description: 'Build a budget that fits your income, expenses, and savings priorities.', accent: '#b9a9f7' },
+  { icon: '05', title: 'Financial Simulator', description: 'Test salary hikes, debt payments, and expense changes before you make a decision.', accent: '#ffb07a' },
+  { icon: '06', title: 'Actionable Alerts', description: 'Stay ahead of high debt, low savings, and upcoming goal deadlines.', accent: '#ff8e8e' },
+];
 
-// ── Intersection observer hook ────────────────────────────────────────────────
-function useInView(threshold = 0.2) {
-  const ref = useRef(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [threshold]);
-  return [ref, inView];
-}
+const steps = [
+  ['01', 'Create your free account', 'Sign up in seconds with your name and role.'],
+  ['02', 'Add your financial details', 'Share your income, expenses, savings, and loans.'],
+  ['03', 'Get your score', 'Receive a detailed financial-health breakdown instantly.'],
+  ['04', 'Track and improve', 'Use tailored recommendations to build stronger financial habits.'],
+];
 
-// ── Typewriter component ──────────────────────────────────────────────────────
-function Typewriter({ words }) {
-  const [wi, setWi] = useState(0);
-  const [ci, setCi] = useState(0);
-  const [deleting, setDeleting] = useState(false);
-  const [text, setText] = useState('');
-  useEffect(() => {
-    const word = words[wi];
-    const speed = deleting ? 40 : 80;
-    const timer = setTimeout(() => {
-      if (!deleting) {
-        setText(word.slice(0, ci + 1));
-        if (ci + 1 === word.length) { setTimeout(() => setDeleting(true), 1800); return; }
-        setCi(c => c + 1);
-      } else {
-        setText(word.slice(0, ci - 1));
-        if (ci - 1 === 0) { setDeleting(false); setWi(w => (w + 1) % words.length); setCi(0); return; }
-        setCi(c => c - 1);
-      }
-    }, speed);
-    return () => clearTimeout(timer);
-  }, [ci, deleting, wi, words]);
-  return (
-    <span>
-      {text}
-      <span style={{ borderRight: '3px solid #D4AF37', marginLeft: 2, animation: 'blink 1s step-end infinite' }}/>
-    </span>
-  );
-}
-
-// ── Floating particle canvas ──────────────────────────────────────────────────
-function ParticleCanvas() {
-  const canvasRef = useRef(null);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    let w = canvas.width = window.innerWidth;
-    let h = canvas.height = window.innerHeight;
-    const particles = Array.from({ length: 70 }, () => ({
-      x: Math.random() * w, y: Math.random() * h,
-      r: Math.random() * 1.5 + 0.3,
-      vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
-      alpha: Math.random() * 0.5 + 0.1,
-    }));
-    let raf;
-    const draw = () => {
-      ctx.clearRect(0, 0, w, h);
-      particles.forEach(p => {
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
-        if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(240,180,41,${p.alpha})`;
-        ctx.fill();
-      });
-      // Draw connecting lines
-      particles.forEach((a, i) => {
-        particles.slice(i + 1).forEach(b => {
-          const d = Math.hypot(a.x - b.x, a.y - b.y);
-          if (d < 100) {
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
-            ctx.strokeStyle = `rgba(240,180,41,${0.08 * (1 - d / 100)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        });
-      });
-      raf = requestAnimationFrame(draw);
-    };
-    draw();
-    const onResize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
-    window.addEventListener('resize', onResize);
-    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', onResize); };
-  }, []);
-  return <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0 }} />;
-}
-
-// ── Score UI mock ─────────────────────────────────────────────────────────────
-function ScoreMockup() {
-  const [score, setScore] = useState(0);
-  useEffect(() => {
-    const t = setTimeout(() => {
-      let s = 0;
-      const i = setInterval(() => { s += 2; setScore(s); if (s >= 78) clearInterval(i); }, 30);
-    }, 600);
-    return () => clearTimeout(t);
-  }, []);
-
-  const color = score >= 80 ? '#31C48D' : score >= 65 ? '#4F8EF7' : score >= 50 ? '#D4AF37' : '#F05252';
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 40, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay: 0.5, duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-      style={{
-        background: 'linear-gradient(145deg, #161616 0%, #0a0a0a 100%)',
-        border: '1px solid rgba(255,255,255,0.03)',
-        borderTop: '1px solid rgba(255,255,255,0.08)',
-        borderLeft: '1px solid rgba(255,255,255,0.05)',
-        borderRadius: 20,
-        padding: '0',
-        overflow: 'hidden',
-        boxShadow: '-8px -8px 16px rgba(255,255,255,0.03), 20px 20px 40px rgba(0,0,0,0.95), inset 0 1px 1px rgba(255,255,255,0.05)',
-        maxWidth: 600,
-        width: '100%',
-      }}
-    >
-      {/* Window chrome */}
-      <div style={{ background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#FF5F57' }}/>
-        <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#FEBC2E' }}/>
-        <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#28C840' }}/>
-        <div style={{ marginLeft: 10, background: 'rgba(255,255,255,0.06)', borderRadius: 6, padding: '3px 12px', fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
-          bfhe.app/dashboard
-        </div>
-      </div>
-
-      {/* Content */}
-      <div style={{ padding: '24px 28px' }}>
-        {/* Header row */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-          <div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 }}>Financial Health Score</div>
-            <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.8)' }}>Arjun Sharma · Salaried</div>
-          </div>
-          <div style={{ background: 'rgba(240,180,41,0.1)', border: '1px solid rgba(240,180,41,0.2)', borderRadius: 8, padding: '6px 12px', fontSize: 11, color: '#D4AF37', fontWeight: 700 }}>
-            ↻ Updated just now
-          </div>
-        </div>
-
-        {/* Score + components */}
-        <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 24, alignItems: 'center' }}>
-          {/* Arc gauge */}
-          <div style={{ textAlign: 'center' }}>
-            <svg width="130" height="80" viewBox="0 0 130 80">
-              <path d="M 15 70 A 55 55 0 0 1 115 70" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="12" strokeLinecap="round"/>
-              <path d="M 15 70 A 55 55 0 0 1 115 70" fill="none" stroke={color} strokeWidth="12" strokeLinecap="round"
-                strokeDasharray={`${(score / 100) * 172.8} 172.8`}
-                style={{ transition: 'stroke-dasharray 0.05s linear, stroke 0.3s' }}/>
-            </svg>
-            <div style={{ marginTop: -8, fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 38, fontWeight: 900, color, lineHeight: 1 }}>{score}</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>out of 100</div>
-            <div style={{ marginTop: 6, display: 'inline-block', background: color + '20', border: `1px solid ${color}40`, borderRadius: 20, padding: '2px 10px', fontSize: 11, color, fontWeight: 800 }}>Good</div>
-          </div>
-
-          {/* Component bars */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {[
-              { label: 'Debt-to-Income', value: 72, color: '#4F8EF7' },
-              { label: 'Savings Rate', value: 65, color: '#D4AF37' },
-              { label: 'Emergency Fund', value: 50, color: '#F05252' },
-              { label: 'Credit Usage', value: 88, color: '#31C48D' },
-              { label: 'Expense Ratio', value: 78, color: '#9061F9' },
-            ].map((item, i) => (
-              <div key={i}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{item.label}</span>
-                  <span style={{ fontSize: 11, fontWeight: 800, color: item.color }}>{item.value}</span>
-                </div>
-                <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}>
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${item.value}%` }}
-                    transition={{ delay: 0.8 + i * 0.1, duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    style={{ height: '100%', background: item.color, borderRadius: 2 }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Metric chips row */}
-        <div style={{ display: 'flex', gap: 8, marginTop: 20, flexWrap: 'wrap' }}>
-          {[
-            { label: 'Income', value: '₹85,000', c: '#0DCFAA' },
-            { label: 'EMI', value: '₹18,500', c: '#D4AF37' },
-            { label: 'Savings', value: '19.4%', c: '#4F8EF7' },
-            { label: 'Net Worth', value: '₹12.4L', c: '#9061F9' },
-          ].map((m, i) => (
-            <motion.div key={i}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 + i * 0.08 }}
-              style={{ background: `${m.c}12`, border: `1px solid ${m.c}25`, borderRadius: 8, padding: '7px 12px', flex: 1 }}>
-              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{m.label}</div>
-              <div style={{ fontSize: 14, fontWeight: 800, color: m.c, fontFamily: "'Cabinet Grotesk', sans-serif" }}>{m.value}</div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-// ── Feature card ──────────────────────────────────────────────────────────────
-function FeatureCard({ icon, title, desc, stat, statLabel, delay, color = '#D4AF37' }) {
-  const [ref, inView] = useInView();
-  return (
-    <motion.div ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay, duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-      style={{
-        background: 'linear-gradient(145deg, #141414 0%, #0a0a0a 100%)',
-        border: '1px solid rgba(255,255,255,0.02)',
-        borderTop: '1px solid rgba(255,255,255,0.06)',
-        borderLeft: '1px solid rgba(255,255,255,0.04)',
-        boxShadow: '-4px -4px 10px rgba(255,255,255,0.02), 8px 8px 20px rgba(0,0,0,0.85)',
-        borderRadius: 16,
-        padding: '28px 24px',
-        transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
-        cursor: 'default',
-        overflow: 'hidden',
-        position: 'relative'
-      }}
-      whileHover={{ y: -5, boxShadow: `-6px -6px 12px rgba(255,255,255,0.03), 12px 12px 24px rgba(0,0,0,0.95), inset 0 1px 1px ${color}40`, borderTop: `1px solid ${color}80` }}
-    >
-      <div style={{ fontSize: 32, marginBottom: 14 }}>{icon}</div>
-      <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 18, fontWeight: 800, color: '#EEF2FF', marginBottom: 8 }}>{title}</div>
-      <div style={{ fontSize: 13.5, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginBottom: stat ? 16 : 0 }}>{desc}</div>
-      {stat && (
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 16, marginTop: 4 }}>
-          <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 28, fontWeight: 900, color }}>{stat}</div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{statLabel}</div>
-        </div>
-      )}
-    </motion.div>
-  );
-}
-
-// ── Stat counter card ─────────────────────────────────────────────────────────
-function StatCounter({ value, suffix, label, color, delay }) {
-  const [ref, inView] = useInView();
-  const count = useCounter(value, 2000, inView);
-  return (
-    <motion.div ref={ref}
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={inView ? { opacity: 1, scale: 1 } : {}}
-      transition={{ delay, duration: 0.5 }}
-      style={{ textAlign: 'center', padding: '24px 16px' }}>
-      <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 48, fontWeight: 900, color, lineHeight: 1 }}>
-        {count.toLocaleString('en-IN')}{suffix}
-      </div>
-      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>{label}</div>
-    </motion.div>
-  );
-}
-
-// ── Main Landing Page ─────────────────────────────────────────────────────────
 export default function LandingPage() {
   const navigate = useNavigate();
   const { scrollY } = useScroll();
-  const heroY = useTransform(scrollY, [0, 500], [0, -80]);
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
   const [scrolled, setScrolled] = useState(false);
   const [email, setEmail] = useState('');
-  const [subscribeStatus, setSubscribeStatus] = useState('idle'); // idle, loading, success
+  const [message, setMessage] = useState('');
 
-  const handleSubscribe = () => {
-    if (!email.includes('@')) return;
-    setSubscribeStatus('loading');
-    setTimeout(() => {
-      setSubscribeStatus('success');
-      setEmail('');
-      setTimeout(() => setSubscribeStatus('idle'), 3000);
-    }, 1000);
+  useEffect(() => scrollY.on('change', (value) => setScrolled(value > 24)), [scrollY]);
+
+  const subscribe = (event) => {
+    event.preventDefault();
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setMessage('Enter a valid email address.');
+      return;
+    }
+    setMessage('Thanks — you are on the list.');
+    setEmail('');
   };
 
-  useEffect(() => {
-    const unsub = scrollY.onChange(v => setScrolled(v > 40));
-    return unsub;
-  }, [scrollY]);
-
-  const COMPANY_LOGOS = ['SBI', 'HDFC', 'ICICI', 'Bajaj', 'Zerodha', 'Groww', 'Razorpay', 'PhonePe', 'Paytm', 'CRED'];
+  const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 
   return (
-    <div style={{ background: '#000000', color: '#FFFFFF', fontFamily: "'Instrument Sans', sans-serif", overflowX: 'hidden' }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-        @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-        @keyframes glow { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
-        html { scroll-behavior: smooth; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 2px; }
-      `}</style>
-
-      {/* ── NAVBAR ──────────────────────────────────────────────────────────── */}
-      <motion.nav
-        className="landing-nav"
-        style={{
-          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-          background: scrolled ? 'rgba(0,0,0,0.85)' : 'transparent',
-          borderBottom: scrolled ? '1px solid rgba(255,255,255,0.05)' : '1px solid transparent',
-          backdropFilter: scrolled ? 'blur(24px)' : 'none',
-          WebkitBackdropFilter: scrolled ? 'blur(24px)' : 'none',
-          transition: 'all 0.3s',
-          padding: '0 32px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          height: 70,
-        }}
-      >
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 9, background: 'linear-gradient(135deg,#D4AF37,#b8860b)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 14, color: '#000000' }}>₹</div>
-          <div>
-            <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 16, fontWeight: 900, letterSpacing: 2.5, textTransform: 'uppercase' }}>BFHE</div>
-            <div className="hide-on-mobile" style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: 0.8, marginTop: -2, textTransform: 'uppercase' }}>BHARAT FINANCIAL HEALTH ENGINE</div>
-          </div>
-        </div>
-
-        {/* Nav links */}
-        <div className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
-          {['Features', 'How it Works', 'Pricing'].map(l => (
-            <a key={l} href={`#${l.toLowerCase().replace(' ','-')}`} style={{ fontSize: 13.5, color: 'rgba(255,255,255,0.55)', textDecoration: 'none', fontWeight: 600, letterSpacing: 0.5, transition: 'color 0.2s', textTransform: 'uppercase' }}
-              onMouseEnter={e => e.target.style.color = '#fff'}
-              onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.55)'}>
-              {l}
-            </a>
-          ))}
-        </div>
-
-        {/* CTA */}
-        <div style={{ display: 'flex', gap: 10 }}>
-          <button className="hide-on-mobile btn btn-secondary" onClick={() => navigate('/login')}>
-            SIGN IN
-          </button>
-          <motion.button className="btn btn-primary" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-            onClick={() => navigate('/register')}>
-            GET STARTED
-          </motion.button>
-        </div>
+    <div className="landing-page">
+      <style>{landingStyles}</style>
+      <motion.nav className="landing-nav" animate={{ backgroundColor: scrolled ? 'rgba(4,4,6,.88)' : 'rgba(4,4,6,.46)' }}>
+        <button className="brand" type="button" onClick={() => scrollTo('top')} aria-label="Go to top"><span>₹</span><b>BFHE</b></button>
+        <div className="landing-links"><button type="button" onClick={() => scrollTo('features')}>Features</button><button type="button" onClick={() => scrollTo('how-it-works')}>How it works</button><button type="button" onClick={() => scrollTo('about')}>About</button></div>
+        <div className="nav-actions"><button className="btn btn-secondary sign-in" type="button" onClick={() => navigate('/login')}>Sign in</button><button className="btn btn-primary" type="button" onClick={() => navigate('/register')}>Get started</button></div>
       </motion.nav>
 
-      {/* ── HERO SECTION ────────────────────────────────────────────────────── */}
-      <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', overflow: 'hidden', paddingTop: 64 }}>
-        <ParticleCanvas />
-
-        {/* Ambient Radial Glows for CRED-like rich background */}
-        <div style={{ position: 'absolute', top: '10%', left: '30%', transform: 'translate(-50%,-50%)', width: 900, height: 900, background: 'radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 60%)', pointerEvents: 'none', filter: 'blur(60px)' }}/>
-        <div style={{ position: 'absolute', top: '80%', right: '10%', width: 700, height: 700, background: 'radial-gradient(circle, rgba(13,207,170,0.04) 0%, transparent 60%)', pointerEvents: 'none', filter: 'blur(50px)' }}/>
-
-        <div className="landing-hero-grid" style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 1200, margin: '0 auto', padding: '80px 40px' }}>
-
-          {/* Left: Text */}
-          <motion.div style={{ y: heroY, opacity: heroOpacity }}>
-            {/* Announcement badge */}
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 30, padding: '6px 16px', marginBottom: 30, fontSize: 11, color: '#D4AF37', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, cursor: 'pointer' }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#D4AF37', animation: 'glow 1.5s ease-in-out infinite' }}/>
-              India's First AI Financial Engine
-              <span style={{ opacity: 0.6 }}>→</span>
+      <main id="top">
+        <section className="landing-hero">
+          <div className="landing-hero-video" aria-hidden="true">
+            <video autoPlay muted loop playsInline>
+              <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260818_072341_50851634-bbc3-4c33-9acc-7647d4db44aa.mp4" type="video/mp4" />
+            </video>
+          </div>
+          <div className="landing-hero-grid">
+            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65 }}>
+              <p className="eyebrow"><i /> India-first financial health platform</p>
+              <h1>Upgrade your <span>financial</span><br />lifestyle, <em>simply.</em></h1>
+              <p className="hero-copy">Understand your money, build better habits, and make confident financial decisions with one personalized health score.</p>
+              <div className="hero-actions"><button className="btn btn-primary large" type="button" onClick={() => navigate('/register')}>Get your free score</button><button className="text-button" type="button" onClick={() => scrollTo('how-it-works')}>See how it works <span>→</span></button></div>
+              <p className="trust"><b>2,400+</b> professionals are building stronger financial futures with BFHE.</p>
             </motion.div>
-
-            {/* Big headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.7 }}
-              style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 'clamp(42px, 6vw, 76px)', fontWeight: 900, lineHeight: 1.05, letterSpacing: -2, marginBottom: 24 }}>
-              Upgrade your{' '}
-              <span style={{ color: '#D4AF37', display: 'inline-block', animation: 'float 3s ease-in-out infinite' }}>financial</span>
-              <br />lifestyle{' '}
-              <span style={{ background: 'linear-gradient(135deg, #D4AF37, #F5D76E)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                <Typewriter words={['today.', 'with us.', 'effortlessly.', 'for India.']} />
-              </span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.6 }}
-              style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, marginBottom: 40, maxWidth: 500, letterSpacing: 0.3 }}>
-              BFHE delivers a premium, real-time financial health score, exclusive insights, and AI-driven recommendations tailored for the Indian ecosystem.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45 }}
-              style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              <motion.button className="btn btn-primary" whileHover={{ scale: 1.03, boxShadow: '0 10px 40px rgba(212,175,55,0.3)' }} whileTap={{ scale: 0.97 }}
-                onClick={() => navigate('/register')}
-                style={{ padding: '16px 32px', fontSize: 14 }}>
-                GET YOUR FREE SCORE →
-              </motion.button>
-              
-            </motion.div>
-
-            {/* Social proof */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.7 }}
-              style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 28 }}>
-              <div style={{ display: 'flex' }}>
-                {['🧑‍💼','👩‍💻','👨‍🏭','👩‍🔬','🧑‍🎓'].map((e, i) => (
-                  <div key={i} style={{ width: 28, height: 28, borderRadius: '50%', background: `hsl(${i * 60},60%,50%)`, border: '2px solid #050810', marginLeft: i ? -8 : 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>{e}</div>
-                ))}
-              </div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
-                <span style={{ color: '#D4AF37', fontWeight: 700 }}>2,400+</span> professionals trust BFHE
-              </div>
-            </motion.div>
-          </motion.div>
-
-          {/* Right: Dashboard Mockup */}
-          <div className="mockup-wrapper" style={{ display: 'flex', justifyContent: 'center' }}>
-            <ScoreMockup />
           </div>
-        </div>
+        </section>
 
-        {/* Scroll cue */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-          style={{ position: 'absolute', bottom: 32, left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, fontSize: 11, color: 'rgba(255,255,255,0.25)', letterSpacing: 1, textTransform: 'uppercase' }}>
-          Scroll to explore
-          <motion.div animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} style={{ width: 1, height: 28, background: 'linear-gradient(to bottom, rgba(240,180,41,0.5), transparent)' }}/>
-        </motion.div>
-      </section>
+        <section className="landing-marquee"><p>Built for India’s financial ecosystem</p><div>{['SBI', 'HDFC', 'ICICI', 'Bajaj', 'Zerodha', 'Groww', 'Razorpay', 'PhonePe'].map((company) => <span key={company}>{company}</span>)}</div></section>
 
-      {/* ── LOGO MARQUEE ────────────────────────────────────────────────────── */}
-      <section style={{ borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '28px 0', overflow: 'hidden', background: 'rgba(255,255,255,0.015)' }}>
-        <div style={{ fontSize: 11, textAlign: 'center', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 20 }}>Trusted by professionals at</div>
-        <div style={{ display: 'flex', overflow: 'hidden', maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)' }}>
-          <div style={{ display: 'flex', gap: 56, animation: 'marquee 20s linear infinite', whiteSpace: 'nowrap' }}>
-            {[...COMPANY_LOGOS, ...COMPANY_LOGOS].map((name, i) => (
-              <span key={i} style={{ fontSize: 15, fontWeight: 800, color: 'rgba(255,255,255,0.2)', letterSpacing: 1, fontFamily: "'Cabinet Grotesk', sans-serif" }}>{name}</span>
-            ))}
-          </div>
-        </div>
-      </section>
+        <section className="landing-section" id="features"><div className="section-heading"><p className="eyebrow">Everything you need</p><h2>Take control of your financial journey</h2><p>Simple tools and practical insights, all designed to help you make progress.</p></div><div className="feature-grid">{features.map((feature) => <article className="feature-card" key={feature.title}><span style={{ color: feature.accent }}>{feature.icon}</span><h3>{feature.title}</h3><p>{feature.description}</p></article>)}</div></section>
 
-      {/* ── FEATURES ────────────────────────────────────────────────────────── */}
-      <section id="features" style={{ padding: '100px 40px', maxWidth: 1200, margin: '0 auto' }}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          style={{ textAlign: 'center', marginBottom: 64 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, color: '#D4AF37', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 12 }}>Everything you need</div>
-          <h2 style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 900, marginBottom: 16 }}>Accelerate your financial journey</h2>
-          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', maxWidth: 500, margin: '0 auto', lineHeight: 1.7 }}>From scoring your health to running simulations — BFHE gives you every tool to master your money.</p>
-        </motion.div>
+        <section className="landing-stats"><div><b>One score</b><span>for your whole financial picture</span></div><div><b>Six tools</b><span>to help you improve with clarity</span></div><div><b>Free forever</b><span>no credit card or KYC required</span></div></section>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
-          <FeatureCard icon="⬡" title="Financial Health Score" desc="A single 0–100 score based on DTI, savings rate, emergency fund, credit usage and expense ratio — recalculated instantly." stat="5" statLabel="key metrics tracked" color="#D4AF37" delay={0}/>
-          <FeatureCard icon="◈" title="Net Worth Tracker" desc="Track every asset and liability — from FDs and stocks to home loans — with real-time allocation breakdowns." stat="10+" statLabel="asset categories" color="#0DCFAA" delay={0.07}/>
-          <FeatureCard icon="◎" title="Goal Planning" desc="Set financial goals with AI feasibility analysis. Know exactly how much to save each month to hit your targets." stat="∞" statLabel="goals supported" color="#4F8EF7" delay={0.14}/>
-          <FeatureCard icon="◧" title="Smart Budget Planner" desc="The 50/30/20 rule, customized for your income. See needs, wants and savings with interactive sliders." stat="50/30/20" statLabel="budgeting framework" color="#9061F9" delay={0.21}/>
-          <FeatureCard icon="⟳" title="Financial Simulator" desc="Run what-if scenarios: salary hike, paying off a loan, cutting expenses. See the exact score impact before you decide." stat="5" statLabel="scenario templates" color="#FF8A4C" delay={0.28}/>
-          <FeatureCard icon="◉" title="Smart Alerts" desc="Real-time alerts for score drops, high DTI, goal deadlines, low emergency funds and credit danger zones." stat="10" statLabel="alert types" color="#F05252" delay={0.35}/>
-        </div>
-      </section>
+        <section className="landing-section how-section" id="how-it-works"><div className="section-heading"><p className="eyebrow">How it works</p><h2>Your first score takes minutes</h2></div><div className="step-list">{steps.map(([number, title, description]) => <article key={number}><span>{number}</span><div><h3>{title}</h3><p>{description}</p></div></article>)}</div></section>
 
-      {/* ── STATS SECTION ───────────────────────────────────────────────────── */}
-      <section style={{ background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-        <div className="grid-4-to-1" style={{ maxWidth: 1000, margin: '0 auto' }}>
-          <StatCounter value={2400} suffix="+" label="Active users" color="#D4AF37" delay={0}/>
-          <StatCounter value={85} suffix="%" label="Average score improvement in 3 months" color="#0DCFAA" delay={0.1}/>
-          <StatCounter value={4200} suffix="+" label="Financial goals tracked" color="#4F8EF7" delay={0.2}/>
-          <StatCounter value={98} suffix="%" label="Users say BFHE changed their habits" color="#9061F9" delay={0.3}/>
-        </div>
-      </section>
+        <section className="landing-testimonials" id="about"><div className="section-heading"><p className="eyebrow">Made for real life</p><h2>Clearer money decisions start here</h2></div><div className="testimonial-grid"><blockquote>“The score made my finances feel manageable for the first time.”<footer>Priya Mehta <span>Software Engineer, Bengaluru</span></footer></blockquote><blockquote>“I finally know which debt to prioritise and why.”<footer>Rahul Gupta <span>Business Owner, Delhi</span></footer></blockquote><blockquote>“It gives me a realistic plan for my home down payment.”<footer>Ananya Singh <span>Product Manager, Mumbai</span></footer></blockquote></div></section>
 
-      {/* ── HOW IT WORKS ────────────────────────────────────────────────────── */}
-      <section id="how-it-works" style={{ padding: '100px 40px', maxWidth: 1000, margin: '0 auto' }}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          style={{ textAlign: 'center', marginBottom: 60 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, color: '#0DCFAA', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 12 }}>Simple setup</div>
-          <h2 style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900 }}>Up and running in 3 minutes</h2>
-        </motion.div>
+        <section className="landing-final-cta"><p className="eyebrow">Your next step</p><h2>Start your financial health journey today.</h2><p>Get your personalized score and a clear path forward — completely free.</p><button className="btn btn-primary large" type="button" onClick={() => navigate('/register')}>Get your free score</button><small>No credit card · No KYC · 100% free</small></section>
+      </main>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-          {[
-            { step: '01', title: 'Create your free account', desc: 'Sign up in 30 seconds — no credit card, no KYC. Just your name and role.', icon: '🔐', color: '#D4AF37' },
-            { step: '02', title: 'Enter your financial profile', desc: 'Input income, expenses, loans and savings. The guided wizard makes it easy.', icon: '📋', color: '#0DCFAA' },
-            { step: '03', title: 'Get your score instantly', desc: 'Your personalized financial health score appears with a full breakdown and action plan.', icon: '⬡', color: '#4F8EF7' },
-            { step: '04', title: 'Track, simulate, improve', desc: 'Set goals, run simulations, follow recommendations and watch your score climb.', icon: '📈', color: '#9061F9' },
-          ].map((item, i) => (
-            <motion.div key={i}
-              initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ delay: i * 0.1, duration: 0.6 }}
-              style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: 24, padding: '28px 0', borderBottom: i < 3 ? '1px solid rgba(255,255,255,0.05)' : 'none', alignItems: 'center' }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 11, fontWeight: 800, color: item.color, opacity: 0.5, letterSpacing: 2, marginBottom: 6 }}>{item.step}</div>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: item.color + '15', border: `1px solid ${item.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, margin: '0 auto' }}>{item.icon}</div>
-              </div>
-              <div>
-                <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 20, fontWeight: 800, marginBottom: 6, color: '#EEF2FF' }}>{item.title}</div>
-                <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>{item.desc}</div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── TESTIMONIALS ────────────────────────────────────────────────────── */}
-      <section style={{ padding: '80px 40px', background: 'rgba(255,255,255,0.015)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            style={{ textAlign: 'center', marginBottom: 48 }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: '#9061F9', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 12 }}>Testimonials</div>
-            <h2 style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 'clamp(26px, 3.5vw, 38px)', fontWeight: 900 }}>Real results, real people</h2>
-          </motion.div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
-            {[
-              { name: 'Priya Mehta', role: 'Software Engineer, Bengaluru', quote: 'My score went from 52 to 74 in 2 months. The simulator showed me exactly which loan to pay off first.', avatar: '👩‍💻', score: 74, color: '#0DCFAA' },
-              { name: 'Rahul Gupta', role: 'Business Owner, Delhi', quote: 'Never understood my finances until BFHE. The 50/30/20 planner alone saved me ₹18,000 last month.', avatar: '👨‍🏭', score: 68, color: '#D4AF37' },
-              { name: 'Ananya Singh', role: 'Product Manager, Mumbai', quote: 'The goal tracker is incredible. I\'m on track for my house down payment 4 months ahead of schedule!', avatar: '👩‍🔬', score: 82, color: '#4F8EF7' },
-            ].map((t, i) => (
-              <motion.div key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                style={{ background: 'rgba(10,15,28,0.7)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '24px' }}>
-                <div style={{ display: 'flex', gap: 10, marginBottom: 16, alignItems: 'center' }}>
-                  <div style={{ width: 42, height: 42, borderRadius: '50%', background: t.color + '20', border: `1px solid ${t.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>{t.avatar}</div>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 14 }}>{t.name}</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{t.role}</div>
-                  </div>
-                  <div style={{ marginLeft: 'auto', fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 22, fontWeight: 900, color: t.color }}>{t.score}</div>
-                </div>
-                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, fontStyle: 'italic' }}>"{t.quote}"</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA SECTION ─────────────────────────────────────────────────────── */}
-      <section style={{ padding: '120px 40px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 700, height: 500, background: 'radial-gradient(ellipse, rgba(240,180,41,0.08) 0%, transparent 70%)', pointerEvents: 'none' }}/>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          style={{ position: 'relative', zIndex: 1 }}>
-          <h2 style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 900, lineHeight: 1.1, marginBottom: 20 }}>
-            Start your financial<br />
-            <span style={{ color: '#D4AF37' }}>health journey today</span>
-          </h2>
-          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', marginBottom: 36, maxWidth: 440, margin: '0 auto 36px' }}>Join thousands of Indians who've taken control of their finances with BFHE. Free forever.</p>
-          <motion.button whileHover={{ scale: 1.04, boxShadow: '0 12px 40px rgba(240,180,41,0.4)' }} whileTap={{ scale: 0.97 }}
-            onClick={() => navigate('/register')}
-            style={{ background: 'linear-gradient(135deg,#D4AF37,#b8860b)', border: 'none', borderRadius: 12, padding: '16px 36px', color: '#050810', cursor: 'pointer', fontSize: 17, fontFamily: "'Instrument Sans', sans-serif", fontWeight: 800 }}>
-            Get your free score →
-          </motion.button>
-          <div style={{ marginTop: 16, fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>No credit card · No KYC · 100% free</div>
-        </motion.div>
-      </section>
-
-      {/* ── FOOTER ──────────────────────────────────────────────────────────── */}
-      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: '#050810', color: 'rgba(255,255,255,0.5)', padding: '60px 40px 30px', fontSize: 14 }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          
-          {/* Top Section */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 40, borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 40, marginBottom: 40 }}>
-            <div style={{ flex: '1 1 400px', maxWidth: 450 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-                <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg,#D4AF37,#b8860b)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 14, color: '#050810' }}>₹</div>
-                <span style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 16, letterSpacing: 1.5, color: '#fff' }}>BFHE</span>
-              </div>
-              <p style={{ lineHeight: 1.7, marginBottom: 24 }}>
-                Bharat Financial Health Engine (BFHE) is an India-specific FinTech platform dedicated to delivering world-class financial insights, smart budgeting, and personalized recommendations to help you achieve financial freedom.
-              </p>
-            </div>
-
-            <div style={{ flex: '1 1 400px', maxWidth: 450 }}>
-              <h4 style={{ color: '#fff', fontSize: 13, letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12, fontWeight: 700 }}>Stay in the Loop</h4>
-              <p style={{ marginBottom: 20, fontSize: 13 }}>Get notified about upcoming features, exclusive financial insights, and market announcements.</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" style={{ flex: '1 1 200px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '12px 16px', color: '#fff', outline: 'none' }} />
-                <button onClick={handleSubscribe} disabled={subscribeStatus === 'loading' || subscribeStatus === 'success'} style={{ flex: '1 1 120px', background: subscribeStatus === 'success' ? '#31C48D' : '#D4AF37', border: 'none', borderRadius: 8, padding: '12px 24px', color: '#050810', fontWeight: 800, cursor: (subscribeStatus === 'loading' || subscribeStatus === 'success') ? 'not-allowed' : 'pointer', letterSpacing: 0.5 }}>
-                  {subscribeStatus === 'loading' ? '...' : subscribeStatus === 'success' ? 'SUBSCRIBED ✅' : 'SUBSCRIBE'}
-                </button>
-              </div>
-              <p style={{ fontSize: 11, marginTop: 12, color: 'rgba(255,255,255,0.3)' }}>No spam. Unsubscribe anytime. Your data is never shared.</p>
-            </div>
-          </div>
-
-          {/* Middle Section - Columns */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 40, borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 40, marginBottom: 30 }}>
-            <div>
-              <h4 style={{ color: '#fff', fontSize: 12, letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 20, fontWeight: 700 }}>Features</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <a href="/dashboard" style={{ color: 'inherit', textDecoration: 'none' }}>Dashboard</a>
-                <a href="/net-worth" style={{ color: 'inherit', textDecoration: 'none' }}>Net Worth Tracker</a>
-                <a href="/budget" style={{ color: 'inherit', textDecoration: 'none' }}>Smart Budgeting</a>
-                <a href="/recommendations" style={{ color: 'inherit', textDecoration: 'none' }}>AI Recommendations</a>
-              </div>
-            </div>
-            <div>
-              <h4 style={{ color: '#fff', fontSize: 12, letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 20, fontWeight: 700 }}>My Account</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <a href="/dashboard" style={{ color: 'inherit', textDecoration: 'none' }}>My Profile</a>
-                <a href="/login" style={{ color: 'inherit', textDecoration: 'none' }}>Sign In</a>
-                <a href="/register" style={{ color: 'inherit', textDecoration: 'none' }}>Create Account</a>
-              </div>
-            </div>
-            <div>
-              <h4 style={{ color: '#fff', fontSize: 12, letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 20, fontWeight: 700 }}>Company & Legal</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>About Us</a>
-                <a href="mailto:bharat.bfhe@gmail.com" style={{ color: 'inherit', textDecoration: 'none' }}>Contact Us</a>
-                <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Terms & Conditions</a>
-                <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</a>
-              </div>
-            </div>
-            <div>
-              <h4 style={{ color: '#fff', fontSize: 12, letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 20, fontWeight: 700 }}>Support</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <span style={{ color: '#D4AF37' }}>✉</span>
-                  <a href="mailto:bharat.bfhe@gmail.com" style={{ color: 'inherit', textDecoration: 'none' }}>bharat.bfhe@gmail.com</a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Section */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 20, fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>
-            <div>© 2026 Bharat Financial Health Engine. All rights reserved. • bfhe.vercel.app</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span>IN India</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#31C48D' }}>
-                <span style={{ fontSize: 14 }}>🔒</span> Secure & Encrypted
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </footer>
+      <footer className="landing-footer"><div><div><button className="brand" type="button" onClick={() => scrollTo('top')}><span>₹</span><b>BFHE</b></button><p>Bharat Financial Health Engine helps Indians understand, manage, and improve their financial wellbeing.</p></div><form onSubmit={subscribe}><label htmlFor="newsletter">Stay in the loop</label><div><input id="newsletter" value={email} onChange={(event) => setEmail(event.target.value)} type="email" placeholder="your@email.com" /><button type="submit">Subscribe</button></div>{message && <small role="status">{message}</small>}</form></div><p className="footer-bottom">© 2026 Bharat Financial Health Engine. All rights reserved.</p></footer>
     </div>
   );
 }
+
+const landingStyles = `
+  .landing-page { min-height:100vh; background:#040406; color:#f7f8fc; font-family:Inter,system-ui,sans-serif; overflow:hidden; }
+  .landing-nav { position:fixed; inset:0 0 auto; height:70px; z-index:10; display:flex; align-items:center; justify-content:space-between; padding:0 clamp(20px,4vw,56px); border-bottom:1px solid rgba(255,255,255,.1); backdrop-filter:blur(18px); }
+  .brand { border:0; background:none; color:#fff; display:flex; align-items:center; gap:10px; cursor:pointer; font:inherit; letter-spacing:.12em; } .brand span { display:grid; place-items:center; width:32px; height:32px; color:#111318; background:#e8eef9; border-radius:8px; font-weight:900; letter-spacing:0; }
+  .landing-links { display:flex; gap:28px; } .landing-links button,.text-button { border:0; background:none; color:rgba(255,255,255,.7); cursor:pointer; font:inherit; } .landing-links button:hover,.text-button:hover { color:#fff; }
+  .nav-actions,.hero-actions { display:flex; align-items:center; gap:12px; } .btn { border-radius:8px; padding:11px 18px; border:1px solid rgba(255,255,255,.22); cursor:pointer; font:700 14px Inter,system-ui,sans-serif; } .btn-primary { color:#111318; background:linear-gradient(#fff,#d7e2f2); border-color:#fff; } .btn-secondary { color:#fff; background:transparent; } .large { padding:15px 24px; }
+  .landing-hero { position:relative; min-height:740px; padding:150px clamp(20px,4vw,56px) 90px; display:grid; place-items:center; isolation:isolate; } .landing-hero-grid { display:grid; grid-template-columns:minmax(0,760px); justify-content:center; width:100%; }
+  .eyebrow { color:#c9d9f5; font-size:11px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; } .eyebrow i { display:inline-block; width:7px; height:7px; margin-right:8px; border-radius:50%; background:#87d8d0; box-shadow:0 0 13px #87d8d0; } h1,h2,h3,p { margin-top:0; } h1 { font-size:clamp(42px,6vw,76px); line-height:1.03; letter-spacing:-.06em; margin:20px 0; } h1 span { color:#c9d9f5; } h1 em { color:#aab4c6; font-family:Georgia,serif; font-weight:400; } .hero-copy { max-width:540px; color:rgba(255,255,255,.68); font-size:18px; line-height:1.65; } .hero-actions { margin-top:32px; } .text-button span { margin-left:6px; font-size:18px; } .trust { margin-top:26px; color:rgba(255,255,255,.48); font-size:13px; } .trust b { color:#c9d9f5; }
+  .landing-marquee { border-block:1px solid rgba(255,255,255,.1); padding:28px 20px; text-align:center; } .landing-marquee p { color:rgba(255,255,255,.4); text-transform:uppercase; font-size:10px; letter-spacing:.14em; } .landing-marquee div { display:flex; justify-content:center; flex-wrap:wrap; gap:clamp(22px,5vw,62px); color:rgba(255,255,255,.36); font-weight:800; }
+  .landing-section,.landing-testimonials { max-width:1200px; margin:auto; padding:100px clamp(20px,4vw,56px); }.section-heading{text-align:center;max-width:650px;margin:0 auto 52px}.section-heading h2{font-size:clamp(30px,4vw,46px);letter-spacing:-.05em;margin-bottom:14px}.section-heading>p:last-child{color:rgba(255,255,255,.55);line-height:1.6}.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.feature-card{padding:25px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(255,255,255,.025)}.feature-card>span{font-size:13px;font-weight:900}.feature-card h3{font-size:17px;margin:24px 0 9px}.feature-card p,.step-list p{color:rgba(255,255,255,.52);font-size:14px;line-height:1.65}.landing-stats{display:grid;grid-template-columns:repeat(3,1fr);border-block:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.025);padding:38px clamp(20px,8vw,140px);gap:30px;text-align:center}.landing-stats b{display:block;color:#c9d9f5;font-size:21px}.landing-stats span{display:block;color:rgba(255,255,255,.5);font-size:13px;margin-top:7px}.how-section{max-width:1000px}.step-list article{display:grid;grid-template-columns:70px 1fr;gap:20px;padding:23px 0;border-bottom:1px solid rgba(255,255,255,.1)}.step-list article>span{color:#c9d9f5;font-size:12px;font-weight:800;letter-spacing:.1em}.step-list h3{margin:0;font-size:20px}.step-list p{margin:7px 0 0}.landing-testimonials{max-width:none;background:rgba(255,255,255,.02)}.testimonial-grid{max-width:1100px;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.testimonial-grid blockquote{margin:0;padding:25px;border:1px solid rgba(255,255,255,.1);border-radius:14px;color:rgba(255,255,255,.8);font-size:16px;line-height:1.65}.testimonial-grid footer{margin-top:24px;font-size:13px;font-weight:700}.testimonial-grid footer span{display:block;margin-top:3px;color:rgba(255,255,255,.42);font-weight:400}.landing-final-cta{text-align:center;padding:110px 20px;background:radial-gradient(ellipse,rgba(177,204,246,.15),transparent 60%)}.landing-final-cta h2{font-size:clamp(34px,5vw,56px);max-width:680px;margin:15px auto;letter-spacing:-.05em}.landing-final-cta>p:not(.eyebrow){color:rgba(255,255,255,.58);margin:0 auto 30px}.landing-final-cta small{display:block;margin-top:16px;color:rgba(255,255,255,.37)}.landing-footer{border-top:1px solid rgba(255,255,255,.1);padding:55px clamp(20px,4vw,56px) 25px;color:rgba(255,255,255,.55)}.landing-footer>div{max-width:1200px;margin:auto;display:flex;justify-content:space-between;gap:50px}.landing-footer p{max-width:460px;margin-top:20px;line-height:1.65}.landing-footer form{min-width:min(100%,390px)}.landing-footer label{display:block;color:#fff;font-weight:700;margin-bottom:10px}.landing-footer form>div{display:flex;border:1px solid rgba(255,255,255,.2);border-radius:8px;overflow:hidden}.landing-footer input{flex:1;min-width:0;padding:11px;background:transparent;border:0;color:#fff;outline:0}.landing-footer form button{border:0;background:#e8eef9;color:#111318;padding:0 15px;font-weight:800;cursor:pointer}.landing-footer form small{display:block;margin-top:8px;color:#87d8d0}.footer-bottom{max-width:1200px;margin:45px auto 0!important;padding-top:20px;border-top:1px solid rgba(255,255,255,.1);font-size:12px}
+  @media(max-width:760px){.landing-links,.sign-in{display:none}.landing-nav{height:62px;padding:0 20px}.landing-hero{min-height:auto;padding:120px 20px 70px}.landing-hero-grid,.feature-grid,.testimonial-grid,.landing-stats{grid-template-columns:1fr;gap:18px}.landing-footer>div{flex-direction:column;gap:25px}.landing-section,.landing-testimonials{padding:70px 20px}.hero-actions{align-items:flex-start;flex-direction:column}}
+`;

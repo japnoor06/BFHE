@@ -166,7 +166,7 @@ import { formatINR } from '../utils/currency';
 
 const ASSET_CATS = ['cash_savings', 'fixed_deposit', 'mutual_funds', 'stocks', 'ppf_epf', 'real_estate', 'gold', 'crypto', 'nps', 'other'];
 const LIAB_CATS = ['home_loan', 'vehicle_loan', 'personal_loan', 'education_loan', 'credit_card', 'business_loan', 'other'];
-const COLORS = ['#D4AF37', '#0DCFAA', '#b8860b', '#23D160', '#F5D76E', '#4F8EF7', '#FF4A4A', '#9061F9', '#A78BFA', '#60A5FA'];
+const COLORS = ['#c9d9f5', '#87d8d0', '#91a9d0', '#23D160', '#e4ebf8', '#a9c8ff', '#FF4A4A', '#b9a9f7', '#c8b9fa', '#8fc9f5'];
 
 const fmtCat = s => s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 

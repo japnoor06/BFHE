@@ -9,7 +9,7 @@ import { fetchNetWorth } from '../store/slices/netWorthSlice';
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CATEGORY_META = {
   debt: { label: 'Debt', icon: '💳', color: '#F05252', dim: 'rgba(240,82,82,0.12)' },
-  savings: { label: 'Savings', icon: '🏦', color: '#F0B429', dim: 'rgba(240,180,41,0.12)' },
+  savings: { label: 'Savings', icon: '🏦', color: '#c9d9f5', dim: 'rgba(201,217,245,0.12)' },
   emergency: { label: 'Emergency', icon: '🛡️', color: '#4F8EF7', dim: 'rgba(79,142,247,0.12)' },
   credit: { label: 'Credit', icon: '📊', color: '#9061F9', dim: 'rgba(144,97,249,0.12)' },
   investment: { label: 'Investment', icon: '📈', color: '#0DCFAA', dim: 'rgba(13,207,170,0.12)' },
@@ -20,7 +20,7 @@ const CATEGORY_META = {
 };
 const PRIORITY_META = {
   critical: { label: 'Critical', color: '#EF4444', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)' },
-  high: { label: 'High', color: '#F0B429', bg: 'rgba(240,180,41,0.12)', border: 'rgba(240,180,41,0.3)' },
+  high: { label: 'High', color: '#c9d9f5', bg: 'rgba(201,217,245,0.12)', border: 'rgba(201,217,245,0.3)' },
   medium: { label: 'Medium', color: '#4F8EF7', bg: 'rgba(79,142,247,0.12)', border: 'rgba(79,142,247,0.3)' },
   low: { label: 'Low', color: '#31C48D', bg: 'rgba(49,196,141,0.12)', border: 'rgba(49,196,141,0.3)' },
 };
@@ -28,7 +28,7 @@ const fmt = (n) => n != null ? `₹${Number(n).toLocaleString('en-IN')}` : '—'
 
 // ─── Score Ring ───────────────────────────────────────────────────────────────
 function ScoreRing({ score, grade, size = 100 }) {
-  const color = grade === 'Excellent' ? '#0DCFAA' : grade === 'Good' ? '#31C48D' : grade === 'Fair' ? '#F0B429' : grade === 'Poor' ? '#FF8A4C' : '#F05252';
+  const color = grade === 'Excellent' ? '#87d8d0' : grade === 'Good' ? '#31C48D' : grade === 'Fair' ? '#c9d9f5' : grade === 'Poor' ? '#FF8A4C' : '#F05252';
   const r = size * 0.43, circ = 2 * Math.PI * r, dash = (score / 100) * circ;
   return (
     <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
@@ -95,7 +95,7 @@ function RecCard({ rec, index, isAI, isDone, onToggleDone, linkedGoal }) {
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }} style={{ overflow: 'hidden' }}>
             <div className="rec-card-details">
               {rec.actionStep && (
-                <div style={{ background: 'rgba(240,180,41,0.07)', border: '1px solid rgba(240,180,41,0.2)', borderRadius: 10, padding: '12px 14px' }}>
+                <div style={{ background: 'rgba(201,217,245,0.07)', border: '1px solid rgba(201,217,245,0.2)', borderRadius: 10, padding: '12px 14px' }}>
                   <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--gold)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>⚡ Action This Week</div>
                   <p style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.6 }}>{rec.actionStep}</p>
                 </div>
@@ -188,7 +188,7 @@ function AIChatPanel({ financialContext }) {
         )}
         {aiChat.map((m, i) => (
           <div key={i} style={{ alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '88%' }}>
-            <div style={{ background: m.role === 'user' ? 'rgba(240,180,41,0.12)' : 'var(--bg-elevated)', border: `1px solid ${m.role === 'user' ? 'rgba(240,180,41,0.2)' : 'var(--border)'}`, borderRadius: m.role === 'user' ? '12px 12px 4px 12px' : '12px 12px 12px 4px', padding: '10px 13px', fontSize: 13, color: 'var(--text)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+            <div style={{ background: m.role === 'user' ? 'rgba(201,217,245,0.12)' : 'var(--bg-elevated)', border: `1px solid ${m.role === 'user' ? 'rgba(201,217,245,0.2)' : 'var(--border)'}`, borderRadius: m.role === 'user' ? '12px 12px 4px 12px' : '12px 12px 12px 4px', padding: '10px 13px', fontSize: 13, color: 'var(--text)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
               {m.content}
             </div>
           </div>
@@ -209,7 +209,7 @@ function AIChatPanel({ financialContext }) {
         <input value={msg} onChange={e => setMsg(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()}
           placeholder="Ask about your finances..." style={{ flex: 1, background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 8, padding: '8px 12px', color: 'var(--text)', fontSize: 13, fontFamily: 'var(--font-body)', outline: 'none' }} />
         <button onClick={handleSend} disabled={chatLoading || !msg.trim()}
-          style={{ background: 'linear-gradient(135deg, var(--gold), #d4960f)', border: 'none', borderRadius: 8, width: 36, height: 36, color: '#050810', fontSize: 15, cursor: 'pointer', fontWeight: 800, flexShrink: 0, opacity: chatLoading || !msg.trim() ? 0.4 : 1 }}>↑</button>
+          style={{ background: 'linear-gradient(180deg, #ffffff, #c9d9f5)', border: 'none', borderRadius: 8, width: 36, height: 36, color: '#111318', fontSize: 15, cursor: 'pointer', fontWeight: 800, flexShrink: 0, opacity: chatLoading || !msg.trim() ? 0.4 : 1 }}>↑</button>
       </div>
       <div style={{ padding: '4px 12px 8px', fontSize: 10, color: 'var(--text-3)', textAlign: 'center' }}>Powered by Gemini 2.0 · Uses your real data</div>
     </div>
@@ -300,14 +300,14 @@ export default function RecommendationsPage() {
 
   const tabStyle = (t) => ({
     padding: '8px 18px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-body)', border: 'none', transition: 'all 0.2s',
-    background: activeTab === t ? (t === 'all' ? 'rgba(144,97,249,0.15)' : t === 'done' ? 'rgba(49,196,141,0.15)' : 'rgba(240,180,41,0.15)') : 'var(--bg-elevated)',
+    background: activeTab === t ? (t === 'all' ? 'rgba(185,169,247,0.15)' : t === 'done' ? 'rgba(49,196,141,0.15)' : 'rgba(201,217,245,0.15)') : 'var(--bg-elevated)',
     color: activeTab === t ? (t === 'all' ? '#9061F9' : t === 'done' ? '#31C48D' : 'var(--gold)') : 'var(--text-2)',
     boxShadow: activeTab === t ? `0 0 12px ${t === 'all' ? 'rgba(144,97,249,0.15)' : 'transparent'}` : 'none'
   });
 
   const filterBtn = (active, color = 'var(--gold)') => ({
-    padding: '5px 12px', borderRadius: 7, fontSize: 11, fontWeight: 700, background: active ? 'rgba(240,180,41,0.12)' : 'var(--bg-elevated)',
-    color: active ? color : 'var(--text-3)', border: `1px solid ${active ? 'rgba(240,180,41,0.25)' : 'var(--border)'}`, cursor: 'pointer', fontFamily: 'var(--font-body)', transition: 'all 0.15s'
+    padding: '5px 12px', borderRadius: 7, fontSize: 11, fontWeight: 700, background: active ? 'rgba(201,217,245,0.12)' : 'var(--bg-elevated)',
+    color: active ? color : 'var(--text-3)', border: `1px solid ${active ? 'rgba(201,217,245,0.25)' : 'var(--border)'}`, cursor: 'pointer', fontFamily: 'var(--font-body)', transition: 'all 0.15s'
   });
 
   return (
